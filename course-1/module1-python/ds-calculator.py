@@ -3,8 +3,8 @@ DataCalculator: A class for performing statistical calculations on numerical dat
 This implementation serves as a foundation for understanding basic statistical operations
 commonly used in data science and machine learning.
 
-Author: [Your Name]
-Date: [Current Date]
+Author: Faturrachman
+Date: 13-02-2025
 """
 
 from typing import List, Union
@@ -15,7 +15,7 @@ class DataCalculator:
     A calculator class for performing statistical operations on numerical data.
     
     Attributes:
-        data (List[float]): List storing numerical values
+        data (List[float]): List stor]ing numerical values
         _last_operation (str): Tracks the last operation performed (for logging)
     """
     
@@ -108,6 +108,59 @@ class DataCalculator:
         self._last_operation = f"Calculated standard deviation: {result}"
         return result
     
+    def calculate_range(self) -> float:
+        """
+        Calculate the range (max - min) of the dataset.
+        Commonly used to understand the spread of your data.
+        """
+        if not self.data:
+            return 0
+        result = max(self.data) - min(self.data)
+        self._last_operation = f"Calculated range: {result}"
+        return result
+
+    def normalize_data(self) -> List[float]:
+        """
+        Normalize data to range [0,1].
+        Essential for ML models to treat all features equally.
+        
+        Returns:
+            List[float]: Normalized values
+        """
+        if not self.data:
+            return []
+            
+        min_val = min(self.data)
+        max_val = max(self.data)
+        
+        if max_val == min_val:
+            return [0.0] * len(self.data)
+            
+        normalized = [(x - min_val) / (max_val - min_val) for x in self.data]
+        self._last_operation = "Normalized data"
+        return normalized
+
+    def standardize_data(self) -> List[float]:
+        """
+        Standardize data (convert to z-scores).
+        Widely used in ML to make data have mean=0 and std=1.
+        
+        Returns:
+            List[float]: Standardized values
+        """
+        if len(self.data) < 2:
+            return self.data.copy()
+            
+        mean = self.calculate_mean()
+        std = self.calculate_std_dev()
+        
+        if std == 0:
+            return [0.0] * len(self.data)
+            
+        standardized = [(x - mean) / std for x in self.data]
+        self._last_operation = "Standardized data"
+        return standardized
+
     def get_summary(self) -> dict:
         """
         Get a summary of basic statistical measures.
@@ -137,21 +190,35 @@ class DataCalculator:
         return self._last_operation
 
 def main():
-    """Example usage of the DataCalculator class."""
-    # Create a calculator instance
+    """Example usage focusing on ML data preparation."""
     calc = DataCalculator()
     
-    # Add some sample data
-    sample_data = [2.5, 3.0, 4.5, 5.0, 6.0]
-    for num in sample_data:
-        calc.add_number(num)
-        print(f"Added number: {num}")
+    # Sample dataset (imagine these are features like house prices)
+    raw_data = [100000, 150000, 250000, 300000, 450000]
     
-    # Get and print summary statistics
-    summary = calc.get_summary()
-    print("\nSummary Statistics:")
-    for key, value in summary.items():
-        print(f"{key}: {value}")
+    print("Data Preparation Example for ML:")
+    print("-" * 40)
+    
+    # Add data
+    for value in raw_data:
+        calc.add_number(value)
+    
+    print(f"Raw data: {calc.data}")
+    
+    # Get basic stats
+    print(f"\nRange: {calc.calculate_range()}")
+    print(f"Mean: {calc.calculate_mean():.2f}")
+    print(f"Standard Deviation: {calc.calculate_std_dev():.2f}")
+    
+    # Normalize data (good for neural networks)
+    normalized = calc.normalize_data()
+    print(f"\nNormalized data (0-1 scale):")
+    print(normalized)
+    
+    # Standardize data (good for many ML algorithms)
+    standardized = calc.standardize_data()
+    print(f"\nStandardized data (z-scores):")
+    print(standardized)
 
 if __name__ == "__main__":
     main()
